@@ -4,6 +4,8 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 @Entity
 @Table(name = "users")
 @Getter
@@ -27,6 +29,9 @@ public class User {
     @Column(name = "role", nullable = false)
     private UserRole role;
 
+    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    private List<Record> records;
+
     public User() {}
 
     public User(String name, String email, String password, UserRole role) {
@@ -34,5 +39,17 @@ public class User {
         this.email = email;
         this.password = password;
         this.role = role;
+    }
+
+    public boolean isSimpleUser() {
+        return this.role == UserRole.USER;
+    }
+
+    public boolean isAdmin() {
+        return this.role == UserRole.ADMIN;
+    }
+
+    public boolean isSuperAdmin() {
+        return this.role == UserRole.SUPER_ADMIN;
     }
 }

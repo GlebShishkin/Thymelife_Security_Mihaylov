@@ -44,8 +44,9 @@ public class SecurityConfig {
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authz -> authz
                         .requestMatchers("/", "/login", "/registration", "/error", "/css/**", "/static/**").permitAll()
-                        .requestMatchers("/account/**").hasAnyRole(UserRole.USER.name(), UserRole.ADMIN.name())
-                        .requestMatchers("/admin/**").hasRole(UserRole.ADMIN.name())
+                        .requestMatchers("/account/**").hasAnyRole(UserRole.USER.name(), UserRole.ADMIN.name(), UserRole.SUPER_ADMIN.name())
+                        .requestMatchers("/admin/**").hasAnyRole(UserRole.ADMIN.name(), UserRole.SUPER_ADMIN.name())
+                        .requestMatchers("/super-admin/**").hasRole(UserRole.SUPER_ADMIN.name())
                         .anyRequest().authenticated()
                 )
                 // добавим вывод стека, если исключение (см. https://alexkosarev.name/2023/06/03/authentication-entry-point-spring-security/)

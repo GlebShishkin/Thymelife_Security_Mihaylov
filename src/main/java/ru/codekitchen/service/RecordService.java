@@ -4,37 +4,46 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import ru.codekitchen.entity.User;
 import ru.codekitchen.repository.RecordRepository;
 import ru.codekitchen.entity.Record;
 import ru.codekitchen.entity.RecordStatus;
 import ru.codekitchen.entity.dto.RecordsContainerDto;
 
 import java.util.Arrays;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Slf4j
 @Service
 public class RecordService {
+    private final UserService userService;
     private final RecordRepository recordRepository;
 
     @Autowired
-    public RecordService(RecordRepository recordRepository) {
+    public RecordService(UserService userService, RecordRepository recordRepository) {
+        this.userService = userService;
         this.recordRepository = recordRepository;
     }
 
     public RecordsContainerDto findAllRecords(String filterMode) {
  //       System.out.println("1) ### recordDao.findAllRecords() = " + recordDao.findAllRecords());
 
+        User user = userService.getCurrentUser();
+
         // получаем все записи
-        List<Record> records = recordRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
+        List<Record> records = user.getRecords().stream()
+                .sorted(Comparator.comparingInt(Record::getId))
+                .collect(Collectors.toList());
+//        List<Record> records = recordRepository.findAll(Sort.by(Sort.Direction.ASC, "id"));
 
         // считаем статистику
         int numberOfDoneRecords = (int) records.stream().filter(record -> record.getStatus() == RecordStatus.DONE).count();
         int numberOfActiveRecords = (int) records.stream().filter(record -> record.getStatus() == RecordStatus.ACTIVE).count();
 
         if (filterMode == null || filterMode.isBlank()) {
-            return new RecordsContainerDto(records, numberOfDoneRecords, numberOfActiveRecords);
+            return new RecordsContainerDto(user.getName(), records, numberOfDoneRecords, numberOfActiveRecords);
         }
 
         String filterModeInUpperCase = filterMode.toUpperCase();
@@ -47,15 +56,16 @@ public class RecordService {
             List<Record> filterRecords = records.stream()
                     .filter(record -> record.getStatus() == RecordStatus.valueOf(filterModeInUpperCase))
                     .collect(Collectors.toList());
-            return new RecordsContainerDto(filterRecords, numberOfDoneRecords, numberOfActiveRecords);
+            return new RecordsContainerDto(user.getName(), filterRecords, numberOfDoneRecords, numberOfActiveRecords);
         } else {
-            return new RecordsContainerDto(records, numberOfDoneRecords, numberOfActiveRecords);
+            return new RecordsContainerDto(user.getName(), records, numberOfDoneRecords, numberOfActiveRecords);
         }
     }
 
     public void saveRecord(String title) {
         if (title != null && !title.isBlank()) {
-            recordRepository.save(new Record(title));
+            User user = userService.getCurrentUser();
+            recordRepository.save(new Record(title, user));
         }
     }
 

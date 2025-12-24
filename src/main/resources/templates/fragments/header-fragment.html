@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Header Fragment</title>
@@ -8,7 +8,7 @@
 <!--
 фрагмет, кот используется для заголовка путем вставки в др. страницы:
 th:fragment - название фрагмента
-(userName) - набор параметров, кот передается из родительских страниц
+(userName) - набор параметров, кот передается в header из родительских страниц
 см. https://www.youtube.com/watch?v=XqftS4H_ZOQ&t=1s
 -->
 <div th:fragment="header-fragment (userName)" class="navbar-wrapper">
@@ -20,7 +20,7 @@ th:fragment - название фрагмента
             <div class="navbar-container__controls">
                 <a href="/account" class="navbar-container__controls-link">Account</a>
             </div>
-            <div class="navbar-container__controls">
+            <div sec:authorize="hasAnyRole('ROLE_ADMIN', 'ROLE_SUPER_ADMIN')" class="navbar-container__controls">
                 <a href="/admin" class="navbar-container__controls-link">Management</a>
             </div>
         </div>

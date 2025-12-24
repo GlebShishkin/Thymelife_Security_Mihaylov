@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
@@ -41,7 +41,7 @@
         </div>
     </div>
     <!-- контейнер для изменения роди у пользователей (в виде выпадающего списка) -->
-    <div class="container">
+    <div sec:authorize="hasRole('ROLE_SUPER_ADMIN')" class="container">
         <div class="header-container">
             <div class="header__text">
                 <h2>Upgrade to Admin</h2>
